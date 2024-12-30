@@ -8,6 +8,7 @@ const cookieParser = require('cookie-parser');
 const mainPageRoutes = require('./routes/main');
 const votingRoutes = require('./routes/voting');
 const newPollRoutes = require('./routes/newpoll');
+const authRoutes = require('./routes/auth');
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
@@ -17,6 +18,7 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+app.use('/auth', authRoutes);
 app.use('/newpoll', newPollRoutes);
 app.use('/voting', votingRoutes);
 app.use('/', mainPageRoutes);

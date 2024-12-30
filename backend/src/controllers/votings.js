@@ -3,8 +3,7 @@ const Vote = require('../models/vote');
 
 exports.getVoting = async (req, res, next) => {
   const votingId = req.params.id;
-  const userId = req.cookies.userId;
-
+  const userId = req.cookies.userId ? req.cookies.userId : null;
   Promise.all([
     Voting.fetchVotingwithCreatorById(votingId),
     Candidate.fetchByVotingId(votingId),
@@ -117,5 +116,17 @@ exports.retractVote = async (req, res, next) => {
   } catch (error) {
     console.error(error);
     res.status(500).send('An error occurred while retracting the vote');
+  }
+};
+
+exports.deleteVoting = async (req, res, next) => {
+  const votingId = req.params.id;
+  const userId = req.cookies.userId;
+  try {
+    await Voting.deleteVoting(votingId, userId);
+    res.redirect(`/`);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('An error occurred while deleting the voting');
   }
 };
