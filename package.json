@@ -4,7 +4,6 @@
   "description": "A **Node.js Express** application for managing and participating in votings. This platform simplifies the process of creating, conducting, and analyzing voting sessions, providing a user-friendly and secure experience for administrators and participants alike.",
   "main": "index.js",
   "scripts": {
-    "prepare": "husky install",
     "format": "prettier --write .",
     "lint": "eslint .",
     "test": "jest",
@@ -16,7 +15,10 @@
     "@eslint/js": "^9.17.0",
     "eslint": "^9.17.0",
     "globals": "^15.14.0",
-    "husky": "^9.1.7",
     "prettier": "^3.4.2"
-  }
+  },
+    "simple-git-hooks": {
+      "pre-commit": "npm run format && npm run lint",
+      "pre-push": "npm run test"
+    }
 }
