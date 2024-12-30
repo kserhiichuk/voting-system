@@ -1,7 +1,7 @@
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
-const p = path.join(__dirname, "..", "data", "votings.json");
+const p = path.join(__dirname, '..', 'data', 'votings.json');
 
 const getVotingsFromFile = (cb) => {
   fs.readFile(p, (err, fileContent) => {
@@ -36,7 +36,7 @@ class Voting {
         this.id = nextId;
         this.title = title;
         this.description = description;
-        this.status = "active";
+        this.status = 'active';
         this.createdById = createdById;
         this.createdBy = createdBy;
         this.votes = 0;
@@ -84,9 +84,15 @@ class Voting {
       if (voting.status !== 'active') {
         callback(new Error('Voting is not active'));
       }
-      const candidate = voting.candidates.find((candidate) => candidate.id === candidateId);
+      const candidate = voting.candidates.find(
+        (candidate) => candidate.id === candidateId,
+      );
       if (!candidate) {
-        callback(new Error(`Candidate with ID ${candidateId} not found in voting ${votingId}`));
+        callback(
+          new Error(
+            `Candidate with ID ${candidateId} not found in voting ${votingId}`,
+          ),
+        );
         return;
       }
       candidate.voteCount++;
@@ -100,9 +106,6 @@ class Voting {
       });
     });
   }
-  
-  
-  
 
   getCandidateById(candidateId) {
     return this.candidates.find((candidate) => candidate.id === candidateId);
@@ -127,7 +130,7 @@ class Voting {
         fs.writeFile(
           p,
           JSON.stringify(votings, (key, value) => {
-            if (key === "candidates") {
+            if (key === 'candidates') {
               return value.map((candidate) => ({
                 id: candidate.id,
                 name: candidate.name,
@@ -143,7 +146,7 @@ class Voting {
             } else {
               resolve(); // Resolve the promise if there's no error
             }
-          }
+          },
         );
       });
     });
@@ -184,4 +187,4 @@ class Candidate {
   }
 }
 
-module.exports = {Voting, getVotingsFromFile};
+module.exports = { Voting, getVotingsFromFile };

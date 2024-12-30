@@ -1,4 +1,4 @@
-const express = require('express')
+const express = require('express');
 const router = express.Router();
 
 const votingsController = require('../controllers/votings');
@@ -11,4 +11,4 @@ router.post('/:id/close', votingsController.closeVoting);
 
 router.get('/:id/res', votingsController.getResult);
 
-module.exports = router
+module.exports = router;

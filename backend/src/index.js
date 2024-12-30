@@ -3,14 +3,14 @@ const app = express();
 const port = 3001;
 
 const bodyParser = require('body-parser');
-const cookieParser = require("cookie-parser");
+const cookieParser = require('cookie-parser');
 
 const mainPageRoutes = require('./routes/main');
 const votingRoutes = require('./routes/voting');
 const newPollRoutes = require('./routes/newpoll');
 
 app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
+  console.log(`Server is running at http://localhost:${port}`);
 });
 
 app.use(cookieParser());
