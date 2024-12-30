@@ -28,7 +28,6 @@ function fetchNextId() {
 
 class Voting {
   constructor(title, description, createdById, createdBy) {
-    console.log(createdById);
     this.candidates = [];
     (async () => {
       try {
@@ -64,6 +63,28 @@ class Voting {
       }
 
       voting.status = 'closed';
+      fs.writeFile(p, JSON.stringify(votings), (err) => {
+        if (err) {
+          callback(err);
+        } else {
+          callback(null);
+        }
+      });
+    });
+  }
+
+  static async openVoting(votingId, userId, callback) {
+    getVotingsFromFile((votings) => {
+      const voting = votings.find((voting) => voting.id === parseInt(votingId));
+      if (!voting) {
+        return reject(new Error('Voting not found'));
+      }
+
+      if (voting.createdById !== userId) {
+        return reject(new Error('Unauthorized to open this voting'));
+      }
+
+      voting.status = 'active';
       fs.writeFile(p, JSON.stringify(votings), (err) => {
         if (err) {
           callback(err);

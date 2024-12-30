@@ -9,8 +9,6 @@ exports.getVoting = async (req, res, next) => {
     if (!voting) {
       return res.status(404).send('Voting not found');
     }
-    console.log(voting);
-    console.log(vote);
     res.render('voting', { voting, vote, userId, req });
   });
 };
@@ -30,22 +28,13 @@ exports.addVoting = async (req, res, next) => {
   }
 
   await voting.save();
-
-  console.log(`lol: ${voting.id}`);
   res.redirect(`/voting/${voting.id}`);
 };
 
 exports.castVote = async (req, res, next) => {
-  console.log('Received request:', req.method, req.url);
-  console.log('Request body:', req.body);
-
   const votingId = req.params.id;
   const candidateId = parseInt(req.body.candidateId);
   const userId = req.cookies.userId;
-
-  if (!candidateId) {
-    res.status(500).send({ message: 'Incorrect candidate' });
-  }
 
   const vote = new Vote(votingId, candidateId, userId);
 
@@ -56,7 +45,6 @@ exports.castVote = async (req, res, next) => {
         console.error(err);
         return res.status(500).send('Failed to increment votes');
       }
-      console.log('Votes incremented successfully');
       res.status(200).send('Vote cast successfully');
     });
   } catch (error) {
@@ -73,30 +61,49 @@ exports.closeVoting = async (req, res, next) => {
       if (err) {
         console.error(err);
         res.status(500).send('Error closing voting');
+        return;
       }
       res.status(200).send('Voting closed successfully');
     });
   } catch (error) {
     console.error(error);
     res.status(500).send('Error closing voting');
+    return;
   }
-  res.redirect(`/`);
+};
+
+exports.openVoting = async (req, res, next) => {
+  const votingId = req.params.id;
+  const userId = req.cookies.userId;
+  try {
+    Voting.openVoting(votingId, userId, (err) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send('Error opening voting');
+        return;
+      }
+      res.status(200).send('Voting opened successfully');
+      return;
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error opening voting');
+    return;
+  }
 };
 
 exports.getResult = async (req, res, next) => {
   const votingId = parseInt(req.params.id);
-  console.log(`lol: ${votingId}`);
   const userId = req.cookies.userId;
   Voting.fetchById(votingId, (voting) => {
     if (!voting) {
       return res.status(404).send('Voting not found');
     }
     const userId = req.cookies.userId;
-
-    if (userId != voting.createdById) {
-      res.status(403).send('Unathorized');
-    }
-    console.log(voting);
-    res.render('votingRes', { voting });
+    // results are available to all
+    // if (userId != voting.createdById) {
+    //   res.status(403).send("Unathorized");
+    // }
+    res.render('votingRes', { voting, req });
   });
 };
