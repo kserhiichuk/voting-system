@@ -1,7 +1,4 @@
-const fs = require('fs');
-const path = require('path');
-const filePath = path.join(__dirname, '..', 'data', 'votes.json');
-const Voting = require('../models/voting');
+const db = require('../util/database');
 
 class Vote {
   constructor(votingId, candidateId, userId) {
@@ -18,10 +15,10 @@ class Vote {
     return votes;
   }
 
-  static findByVotingIdAndUserId(votingId, userId) {
-    const votes = this.fetchAll();
-    return votes.find(
-      (vote) => vote.votingId == votingId && vote.userId == userId,
+  static fetchByVotingIdAndUserId(votingId, userId) {
+    return db.execute(
+      `SELECT * FROM votes WHERE voting_id = ? AND user_id = ?`,
+      [votingId, userId],
     );
   }
 

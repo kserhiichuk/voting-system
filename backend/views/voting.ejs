@@ -1,10 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myVote</title>
+<%- include('./includes/head.ejs') %>
   <link rel="stylesheet" href="/styles/main.css" />
   <link rel="stylesheet" href="/styles/voting.css" />
   <link rel="stylesheet" href="/styles/animations.css" />
@@ -13,17 +7,7 @@
 
 <body>
   <div class="container">
-    <header class="header">
-      <h1>
-        <a href="/">my<span class="distinct">V</span>ote</a>
-      </h1>
-      <div class="header__right">
-        <a href="/newpoll"><button class="green_button">Create vote</button></a>
-        <p class="username">
-          <%= req.cookies.userName ? req.cookies.userName : 'Guest' %>
-        </p>
-      </div>
-    </header>
+    <%- include('./includes/navigation.ejs') %>
 
     <section class="votings_container">
       <div class="voting_container">
@@ -40,9 +24,9 @@
             <%= voting.title %>
           </h2>
           <div class="voting_info_container">
-            <p class="voting_creator">Author: <%= voting.createdBy %>
+            <p class="voting_creator">Author: <%= creatorName %>
             </p>
-            <p class="voting_creator">Total votes: <%= voting.votes %>
+            <p class="voting_creator">Total votes: <%= voting.votes_num %>
             </p>
           </div>
         </div>
@@ -52,12 +36,12 @@
           </p>
           <form action="/voting/<%= voting.id %>/vote" method="POST" id="vote-form">
             <div class="poll_container">
-              <% voting.candidates.forEach((candidate, index)=> { %>
+              <% candidates.forEach((candidate, index)=> { %>
                 <p class="option_text">
                   <input type="radio" name="candidateId" id="answer<%= index + 1 %>" value="<%= candidate.id %>" />
                   <label for="answer<%= index + 1 %>">
                     <%= candidate.name %>
-                      <% if (voting.status==='closed' || vote) { %> - <%= candidate.voteCount %> votes <% } %>
+                      <% if (voting.status=='closed' || (vote && vote.length)) { %> - <%= candidate.votes_num %> votes <% } %>
                   </label>
                 </p>
                 <% }) %>
@@ -65,7 +49,7 @@
             <div class="vote_button_container">
               <% if (voting.status=='active' ) { %>
                 <button type="submit" class="green_button" id="vote-button">
-                  <% if (vote) { %> You already voted <% } else { %> Vote <% } %>
+                  <% if (vote && vote.length) { %> You already voted <% } else { %> Vote <% } %>
                 </button>
                 <% } %>
             </div>
@@ -99,7 +83,7 @@
     copyLinkButton.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(myLink.href);
-        alert('Link copied to clipboard!');
+        showPopup('Link copied to clipboard!');
       } catch (err) {
         console.error('Failed to copy link: ', err);
       }
@@ -150,15 +134,15 @@
           });
 
           if (response.ok) {
-            alert("Voting opened successfully");
+            showPopup("Voting opened successfully");
             location.reload();
           } else {
             const errorMessage = await response.text();
-            alert(`Error: ${errorMessage}`);
+            showPopup(`Error: ${errorMessage}`);
           }
         } catch (error) {
           console.error(error);
-          alert("Error: Failed to open voting");
+          showPopup("Error: Failed to open voting");
         }
       });
     }
@@ -175,15 +159,15 @@
           });
 
           if (response.ok) {
-            alert("Voting closed successfully");
+            showPopup("Voting closed successfully");
             location.reload();
           } else {
             const errorMessage = await response.text();
-            alert(`Error: ${errorMessage}`);
+            showPopup(`Error: ${errorMessage}`);
           }
         } catch (error) {
           console.error(error);
-          alert("Error: Failed to close voting");
+          showPopup("Error: Failed to close voting");
         }
       });
     }
