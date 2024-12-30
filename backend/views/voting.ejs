@@ -56,17 +56,22 @@
           </form>
 
           <div class="bottom_buttons_container">
+            <% if (vote && vote.length) { %>
+              <form action="/voting/<%= voting.id %>/retract" method="POST" id="retract-vote-form">
+                <button type="submit">Retract Vote</button>
+              </form>
+              <% } %>
             <a href="/voting/<%= voting.id %>" id="myLink"></a>
             <img src="/images/link.png" id="copyLinkButton" class="bottom_icon">
 
 
-            <% if (voting.createdById==userId && voting.status=='active' ) { %>
+            <% if (voting.user_id==userId && voting.status=='active' ) { %>
               <img src="/images/lock.png" id="close-voting-button" class="bottom_icon">
               <% } %>
-                <% if (voting.createdById==userId && voting.status=='closed' ) { %>
+                <% if (voting.user_id==userId && voting.status=='closed' ) { %>
                   <img src="/images/unlock.png" id="open-voting-button" class="bottom_icon">
                   <% } %>
-                    <% if (voting.createdById==userId) { %>
+                    <% if (voting.user_id==userId) { %>
                       <a href="/voting/<%= voting.id %>/res" class="bottom_link">Results</a>
                       <% } %>
           </div>
@@ -90,11 +95,14 @@
     });
 
 
-    const form = document.getElementById("vote-form");
-    form.addEventListener("submit", async (event) => {
-      const candidateId = document.querySelector("input:checked").value;
+    const voteForm = document.getElementById("vote-form");
+    voteForm.addEventListener("submit", async (event) => {
       event.preventDefault();
-
+      if (document.querySelector("input:checked") === null) {
+        showPopup("No candidate selected!");
+        return;
+      }
+      const candidateId = document.querySelector("input:checked").value;
       try {
         const response = await fetch(`/voting/<%= voting.id %>/vote`, {
           method: "POST",
@@ -118,6 +126,32 @@
         showPopup("Error: Failed to cast vote");
       }
     });
+
+    const retractForm = document.getElementById("retract-vote-form");
+    if(retractForm){
+      retractForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        try {
+          const response = await fetch(`/voting/<%= voting.id %>/retract`, {
+            method: "POST",
+          });
+
+          if (response.ok) {
+            const message = await response.text();
+            showPopup(message);
+            location.reload();
+          } else {
+            const errorMessage = await response.text();
+            showPopup(`Error: ${errorMessage}`);
+            return;
+          }
+        } catch (error) {
+          console.error(error);
+          showPopup("Error: Failed to cast vote");
+        }
+      });
+    }
+
     function showPopup(message) {
       alert(message);
     }
@@ -173,11 +207,11 @@
     }
 
     const vote = `<%= JSON.stringify(vote) %>`;
-    `<% if (vote) { %>`;
+    `<% if (vote && vote.length) { %>`;
     if (document.getElementById("vote-button")) {
       document.getElementById("vote-button").disabled = true;
     }
-    const voteCanId = "<%= vote.candidateId%>";
+    const voteCanId = "<%= vote[0].candidate_id%>";
     const radioButtons = document.querySelectorAll(
       'input[type="radio"][name="candidateId"]'
     );

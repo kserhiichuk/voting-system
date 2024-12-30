@@ -1,4 +1,5 @@
 const db = require('../util/database');
+const Vote = require('../models/vote');
 
 class Voting {
   constructor(title, description, createdById, createdBy) {
@@ -19,69 +20,35 @@ class Voting {
     })();
   }
 
-  addCandidate(name) {
-    const candidateId = this.candidates.length + 1;
-    const candidate = new Candidate(candidateId, name);
-    this.candidates.push(candidate);
-  }
+  static async incrementVotes(votingId, candidateId, userId) {
+    // demonstrates transaction confirmation in case of success and transaction rollback in case of failure
+    return new Promise(async (resolve, reject) => {
+      let connection;
+      try {
+        connection = await db.getConnection();
+        await connection.beginTransaction();
 
-  static async closeVoting(votingId, userId) {
-    try {
-      const votings = await getVotingsFromFile();
-      const voting = votings.find((voting) => voting.id == votingId);
-      if (!voting) {
-        throw new Error('Voting not found');
-      }
-      if (voting.createdById != userId) {
-        throw new Error('Unauthorized to close this voting');
-      }
-      voting.status = 'closed';
-      await Voting.writeVotingsToFile(votings);
-    } catch (err) {
-      console.error(err);
-      throw err;
-    }
-  }
-
-  static async openVoting(votingId, userId) {
-    try {
-      const votings = await getVotingsFromFile();
-      const voting = votings.find((voting) => voting.id == votingId);
-      if (!voting) {
-        throw new Error('Voting not found');
-      }
-      if (voting.createdById != userId) {
-        throw new Error('Unauthorized to open this voting');
-      }
-      voting.status = 'active';
-      await Voting.writeVotingsToFile(votings);
-    } catch (err) {
-      console.error(err);
-      throw err;
-    }
-  }
-
-  static incrementVotes(votingId, candidateId) {
-    return new Promise((resolve, reject) => {
-      getVotingsFromFile((err, votings) => {
-        if (err) {
-          console.error(err);
-          reject(err);
+        const hasVoted = await Vote.hasUserVoted(votingId, userId);
+        if (hasVoted) {
+          reject(new Error('User has already voted'));
           return;
         }
-        const voting = votings.find((voting) => voting.id == votingId);
-        if (!voting) {
-          reject(new Error(`Voting with ID ${votingId} not found`));
+
+        const [votingRows] = await Voting.fetchById(votingId);
+
+        if (!votingRows.length) {
+          reject(
+            new Error(`Voting with ID ${votingId} not found or not active`),
+          );
           return;
         }
-        if (voting.status != 'active') {
-          reject(new Error('Voting is not active'));
-          return;
-        }
-        const candidate = voting.candidates.find(
-          (candidate) => candidate.id == candidateId,
+
+        const [candidateRows] = await connection.execute(
+          `SELECT * FROM candidates WHERE voting_id = ? AND id = ? FOR UPDATE`,
+          [votingId, candidateId],
         );
-        if (!candidate) {
+
+        if (!candidateRows.length) {
           reject(
             new Error(
               `Candidate with ID ${candidateId} not found in voting ${votingId}`,
@@ -89,54 +56,158 @@ class Voting {
           );
           return;
         }
-        candidate.votes++;
-        voting.votes++;
-        Voting.writeVotingsToFile(votings)
-          .then(() => resolve())
-          .catch((err) => reject(err));
-      });
+
+        await connection.execute(
+          `INSERT INTO votes (voting_id, candidate_id, user_id) VALUES (?, ?, ?)`,
+          [votingId, candidateId, userId],
+        );
+
+        await connection.execute(
+          `UPDATE candidates SET votes_num = votes_num + 1 WHERE id = ?`,
+          [candidateId],
+        );
+
+        await connection.execute(
+          `UPDATE votings SET votes_num = votes_num + 1 WHERE id = ?`,
+          [votingId],
+        );
+
+        await connection.commit();
+        resolve();
+      } catch (err) {
+        if (connection) {
+          await connection.rollback();
+        }
+        console.error(err);
+        reject(err);
+      } finally {
+        if (connection) {
+          connection.release();
+        }
+      }
     });
   }
 
-  static fromObject(obj) {
-    const voting = new Voting(
-      obj.title,
-      obj.description,
-      obj.createdById,
-      obj.createdBy,
-    );
-    voting.id = obj.id;
-    voting.candidates = obj.candidates;
-    voting.status = obj.status;
-    voting.votes = obj.votes;
-    return voting;
+  static async createWithCandidates(
+    title,
+    description,
+    createdById,
+    candidates,
+  ) {
+    return new Promise(async (resolve, reject) => {
+      let connection;
+      try {
+        connection = await db.getConnection();
+        await connection.beginTransaction();
+
+        const result = await connection.execute(
+          `INSERT INTO votings (title, description, user_id) VALUES (?, ?, ?)`,
+          [title, description, createdById],
+        );
+
+        const votingId = result[0].insertId;
+
+        const candidatePromises = candidates.map((name) => {
+          return Candidate.create(votingId, name, connection);
+        });
+
+        await Promise.all(candidatePromises);
+
+        await connection.commit();
+        resolve(votingId);
+      } catch (err) {
+        if (connection) {
+          await connection.rollback();
+        }
+        console.error(err);
+        reject(err);
+      } finally {
+        if (connection) {
+          connection.release();
+        }
+      }
+    });
   }
 
-  save() {
-    return new Promise((resolve, reject) => {
-      getVotingsFromFile((err, votings) => {
-        if (err) {
-          console.error(err);
-          reject(err);
+  static async closeVoting(votingId, userId) {
+    return new Promise(async (resolve, reject) => {
+      let connection;
+      try {
+        connection = await db.getConnection();
+        await connection.beginTransaction();
+
+        const [votingRows] = await Voting.fetchById(votingId, connection);
+
+        if (!votingRows.length) {
+          reject(new Error('Voting not found'));
           return;
         }
-        votings.push(this);
-        Voting.writeVotingsToFile(votings)
-          .then(() => resolve())
-          .catch((err) => reject(err));
-      });
+
+        if (votingRows[0].user_id != userId) {
+          reject(new Error('Unauthorized to close this voting'));
+          return;
+        }
+
+        await connection.execute(
+          `UPDATE votings SET status = 'closed' WHERE id = ?`,
+          [votingId],
+        );
+
+        await connection.commit();
+        resolve();
+      } catch (err) {
+        if (connection) {
+          await connection.rollback();
+        }
+        console.error(err);
+        reject(err);
+      } finally {
+        if (connection) {
+          connection.release();
+        }
+      }
     });
   }
 
-  static fetchNextId = async () => {
-    const votings = await getVotingsFromFile();
-    let nextId = 1;
-    if (votings.length > 0) {
-      const lastVote = votings[votings.length - 1];
-      nextId = lastVote.id + 1;
-    }
-    return nextId;
-  };
+  static async openVoting(votingId, userId) {
+    return new Promise(async (resolve, reject) => {
+      let connection;
+      try {
+        connection = await db.getConnection();
+        await connection.beginTransaction();
+
+        const [votingRows] = await Voting.fetchById(votingId, connection);
+
+        if (!votingRows.length) {
+          reject(new Error('Voting not found'));
+          return;
+        }
+
+        if (votingRows[0].user_id != userId) {
+          reject(new Error('Unauthorized to open this voting'));
+          return;
+        }
+
+        await connection.execute(
+          `UPDATE votings SET status = 'active' WHERE id = ?`,
+          [votingId],
+        );
+
+        await connection.commit();
+        resolve();
+      } catch (err) {
+        if (connection) {
+          await connection.rollback();
+        }
+        console.error(err);
+        reject(err);
+      } finally {
+        if (connection) {
+          connection.release();
+        }
+      }
+    });
+  }
 
   static fetchAll() {
     return db.execute(
@@ -147,7 +218,7 @@ class Voting {
     );
   }
 
-  static fetchById(id) {
+  static fetchVotingwithCreatorById(id) {
     return db.execute(
       `SELECT votings.*, users.name AS creator_name
        FROM votings
@@ -157,17 +228,13 @@ class Voting {
     );
   }
 
-  static writeVotingsToFile(votings) {
-    return new Promise((resolve, reject) => {
-      fs.writeFile(p, JSON.stringify(votings), (err) => {
-        if (err) {
-          console.log(err);
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
-    });
+  static fetchById(id) {
+    return db.execute(
+      `SELECT *
+       FROM votings
+       WHERE votings.id = ?`,
+      [id],
+    );
   }
 }
 
@@ -180,6 +247,13 @@ class Candidate {
 
   static fetchByVotingId(id) {
     return db.execute(`SELECT * FROM candidates WHERE voting_id = ?`, [id]);
+  }
+
+  static async create(votingId, name, connection) {
+    return connection.execute(
+      `INSERT INTO candidates (voting_id, name) VALUES (?, ?)`,
+      [votingId, name],
+    );
   }
 }
 
