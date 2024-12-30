@@ -142,9 +142,9 @@ class Voting {
           (err) => {
             if (err) {
               console.log(err);
-              reject(err); // Handle the error properly by rejecting the promise
+              reject(err);
             } else {
-              resolve(); // Resolve the promise if there's no error
+              resolve();
             }
           },
         );

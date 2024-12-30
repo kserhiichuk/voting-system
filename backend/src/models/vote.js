@@ -1,7 +1,7 @@
-const fs = require("fs");
-const path = require("path");
-const filePath = path.join(__dirname, "..", "data", "votes.json");
-const Voting = require("../models/voting");
+const fs = require('fs');
+const path = require('path');
+const filePath = path.join(__dirname, '..', 'data', 'votes.json');
+const Voting = require('../models/voting');
 
 class Vote {
   constructor(votingId, candidateId, userId) {
@@ -21,7 +21,7 @@ class Vote {
   static findByVotingIdAndUserId(votingId, userId) {
     const votes = this.fetchAll();
     return votes.find(
-      (vote) => vote.votingId == votingId && vote.userId == userId
+      (vote) => vote.votingId == votingId && vote.userId == userId,
     );
   }
 
@@ -32,14 +32,13 @@ class Vote {
   }
 
   castVote() {
-    // Check if the user has already voted
     const existingVote = Vote.findByVotingIdAndUserId(
       this.votingId,
-      this.userId
+      this.userId,
     );
 
     if (existingVote) {
-      throw new Error("User has already voted");
+      throw new Error('User has already voted');
     }
 
     const newVote = new Vote(this.votingId, this.candidateId, this.userId);
