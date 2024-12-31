@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { SharedService } from '../../shared/shared.service';
 import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-register',
@@ -25,7 +26,7 @@ export class RegisterComponent {
   onSubmit(): void {
     try {
       this.http
-        .post<any>('https://my-vote-6-6.onrender.com/auth/register', {
+        .post<any>(environment.apiUrl + '/auth/register', {
           name: this.formName,
           login: this.formLogin,
           password: this.formPassword,

@@ -4,6 +4,7 @@ import { Component, OnInit, Injectable } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { SharedService } from '../../shared/shared.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-voting',
@@ -31,7 +32,7 @@ export class VotingComponent implements OnInit {
     this.id = this.route.snapshot.paramMap.get('id');
     try {
       this.http
-        .get('https://my-vote-6-6.onrender.com/voting/' + this.id)
+        .get(environment.apiUrl + '/voting/' + this.id)
         .subscribe(
           (response: any) => {
             this.candidates = response.candidates;
@@ -55,7 +56,7 @@ export class VotingComponent implements OnInit {
     }
     try {
       this.http
-        .post('https://my-vote-6-6.onrender.com/voting/' + this.id + '/vote', {
+        .post(environment.apiUrl + '/voting/' + this.id + '/vote', {
           candidateId: this.voteAnswer,
         })
         .subscribe(
@@ -78,7 +79,7 @@ export class VotingComponent implements OnInit {
     try {
       this.http
         .post(
-          'https://my-vote-6-6.onrender.com/voting/' + this.id + '/retract',
+          environment.apiUrl + '/voting/' + this.id + '/retract',
           {},
         )
         .subscribe(
@@ -100,7 +101,7 @@ export class VotingComponent implements OnInit {
   deleteVoting(): void {
     try {
       this.http
-        .delete('https://my-vote-6-6.onrender.com/voting/' + this.id)
+        .delete(environment.apiUrl + '/voting/' + this.id)
         .subscribe(
           (response: any) => {
             this.service.triggerShowAlert('This vote is deleted');
@@ -121,7 +122,7 @@ export class VotingComponent implements OnInit {
     try {
       this.http
         .put(
-          'https://my-vote-6-6.onrender.com/voting/' + this.id + '/close',
+          environment.apiUrl + '/voting/' + this.id + '/close',
           {},
         )
         .subscribe(
@@ -143,7 +144,7 @@ export class VotingComponent implements OnInit {
   openVoting(): void {
     try {
       this.http
-        .put('https://my-vote-6-6.onrender.com/voting/' + this.id + '/open', {})
+        .put(environment.apiUrl + '/voting/' + this.id + '/open', {})
         .subscribe(
           (response: any) => {
             this.service.triggerShowAlert('This voting is now opened');

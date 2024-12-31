@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { SharedService } from '../../shared/shared.service';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-main',
@@ -33,7 +34,7 @@ export class MainComponent implements OnInit {
     try {
       this.http
         .get(
-          'https://my-vote-6-6.onrender.com?page=' +
+          environment.apiUrl + '?page=' +
             this.currentPage +
             '&limit=' +
             this.limit +

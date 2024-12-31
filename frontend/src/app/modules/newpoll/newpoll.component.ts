@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SharedService } from '../../shared/shared.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-newpoll',
@@ -41,7 +42,7 @@ export class NewpollComponent {
 
     try {
       this.http
-        .post('https://my-vote-6-6.onrender.com/newpoll/add-voting', {
+        .post(environment.apiUrl + '/newpoll/add-voting', {
           surveyTitle,
           surveyDescription,
           options,

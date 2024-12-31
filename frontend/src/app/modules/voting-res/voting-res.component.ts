@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { SharedService } from '../../shared/shared.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-voting-res',
@@ -25,7 +26,7 @@ export class VotingResComponent implements OnInit {
     this.id = this.route.snapshot.paramMap.get('id');
     try {
       this.http
-        .get('https://my-vote-6-6.onrender.com/voting/' + this.id + '/res')
+        .get(environment.apiUrl + '/voting/' + this.id + '/res')
         .subscribe(
           (response: any) => {
             this.candidates = response.candidates;
