@@ -7,8 +7,11 @@ exports.getVotings = (req, res, next) => {
     order: [['createdAt', 'DESC']],
   })
     .then((votings) => {
-      const userId = req.cookies.token ? req.cookies.token : null;
-      res.render('main', { votings, userId, req });
+      const tokenString = req.header['authorization']
+        ? req.header['authorization']
+        : null;
+      const token = tokenString && tokenString.split(' ')[1];
+      res.status(200).json({ votings, token });
     })
     .catch((err) => {
       console.log(err);

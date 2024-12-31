@@ -9,13 +9,15 @@ exports.register = async (req, res, next) => {
   try {
     const existingUser = await User.fetchByLogin(login);
     if (existingUser) {
-      return res.status(409).send('User with that login already exists');
+      return res
+        .status(409)
+        .json({ message: 'User with that login already exists' });
     }
     await User.createUser(name, login, password);
-    res.redirect(`/auth/login`);
+    res.status(200).json({ redirect: `/auth/login` });
   } catch (error) {
     console.error(error);
-    res.status(500).send('Internal Server Error');
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 
@@ -24,8 +26,9 @@ exports.login = async (req, res, next) => {
   const password = req.body.password;
   try {
     const user = await User.fetchByLogin(login);
-    if (!user || !User.comparePassword(password, user.password)) {
-      return res.status(401).send('Invalid login or password');
+    const checkPass = await User.comparePassword(password, user.password);
+    if (!user || !checkPass) {
+      return res.status(401).json({ message: 'Invalid login or password' });
     }
 
     const token = uuidv4();
@@ -34,59 +37,51 @@ exports.login = async (req, res, next) => {
       .slice(0, 19)
       .replace('T', ' ');
     await Session.createSession(user.id, token, expiresAt);
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-      maxAge: 24 * 3600 * 1000,
+    res.status(200).json({
+      redirect: `/`,
+      token: token,
     });
-    res.redirect(`/`);
   } catch (error) {
     console.error(error);
-    res.status(500).send('Internal Server Error');
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 
 exports.logout = async (req, res, next) => {
-  const token = req.cookies.token;
+  const tokenString = req.headers['authorization'];
   if (!token) {
-    res.status(500).send('Log out failed');
+    res.status(500).json({ message: 'Log out failed' });
     return;
   }
   try {
+    const token = tokenString && tokenString.split(' ')[1];
     let session = await Session.fetchByToken(token);
     if (!session) {
-      res.cookie('token', '', {
-        expires: new Date(0),
-        httpOnly: true,
-        secure: true,
-        sameSite: 'strict',
-      });
-      res.status(500).send('Log out failed. Token is damaged.');
+      res.status(500).json({ message: 'Log out failed. Token is damaged.' });
       return;
     }
 
     const userId = session.userId;
     await Session.deleteByUser(userId);
-    res.cookie('token', '', {
-      expires: new Date(0),
-      httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-    });
-    res.redirect(`/`);
+    res.status(200).json({ redirect: `/` });
   } catch (error) {
     console.error(error);
-    res.status(500).send('Internal Server Error');
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 
 exports.getLogin = async (req, res, next) => {
-  const userId = req.cookies.token ? req.cookies.token : null;
-  res.render('auth/login', { req, userId });
+  const tokenString = req.headers['authorization']
+    ? req.headers['authorization']
+    : null;
+  const token = tokenString && tokenString.split(' ')[1];
+  res.status(200).json({ token });
 };
 
 exports.getRegister = async (req, res, next) => {
-  const userId = req.cookies.token ? req.cookies.token : null;
-  res.render('auth/register', { req, userId });
+  const tokenString = req.headers['authorization']
+    ? req.headers['authorization']
+    : null;
+  const token = tokenString && tokenString.split(' ')[1];
+  res.status(200).json({ token });
 };

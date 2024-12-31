@@ -5,8 +5,11 @@ const Session = require('../models/session');
 
 exports.getVoting = async (req, res, next) => {
   const votingId = req.params.id;
-  const token = req.cookies.token ? req.cookies.token : null;
+  const tokenString = req.headers['authorization']
+    ? req.headers['authorization']
+    : null;
   let userId = null;
+  const token = tokenString && tokenString.split(' ')[1];
   try {
     if (token) {
       let session = await Session.fetchByToken(token);
@@ -18,7 +21,7 @@ exports.getVoting = async (req, res, next) => {
       include: [{ model: User, as: 'creator' }],
     });
     if (!voting) {
-      return res.status(404).send('Voting not found');
+      return res.status(404).json({ message: 'Voting not found' });
     }
     const candidates = await Candidate.findAll({ where: { votingId } });
     let vote;
@@ -28,16 +31,17 @@ exports.getVoting = async (req, res, next) => {
       });
     }
     vote = vote ? vote.dataValues : undefined;
-    res.render('voting', {
+    res.status(200).json({
       voting,
       candidates,
       vote,
       userId,
-      req,
     });
   } catch (err) {
     console.error(err);
-    res.status(500).send('An error occurred while fetching the data');
+    res
+      .status(500)
+      .json({ message: 'An error occurred while fetching the data' });
   }
 };
 
@@ -53,10 +57,10 @@ exports.addVoting = async (req, res, next) => {
       userId,
       options,
     );
-    res.redirect(`/voting/${result.dataValues.id}`);
+    res.status(200).json({ redirect: `/voting/${result.dataValues.id}` });
   } catch (error) {
     console.error(error);
-    res.status(500).send('Error saving voting');
+    res.status(500).json({ message: 'Error saving voting' });
   }
 };
 
@@ -66,10 +70,10 @@ exports.castVote = async (req, res, next) => {
   const userId = req.userId;
   try {
     await Voting.incrementVotes(votingId, candidateId, userId);
-    res.status(200).send('Vote casted successfully');
+    res.status(200).json({ message: 'Vote casted successfully' });
   } catch (error) {
     console.error(error);
-    res.status(400).send(error.message);
+    res.status(400).json({ message: error.message });
   }
 };
 
@@ -78,10 +82,12 @@ exports.closeVoting = async (req, res, next) => {
   const userId = req.userId;
   try {
     await Voting.closeVoting(votingId, userId);
-    res.status(200).send('Voting closed successfully');
+    res.status(200).json({ message: 'Voting closed successfully' });
   } catch (error) {
     console.error(error);
-    res.status(500).send('An error occurred while closing the voting');
+    res
+      .status(500)
+      .json({ message: 'An error occurred while closing the voting' });
   }
 };
 
@@ -90,33 +96,37 @@ exports.openVoting = async (req, res, next) => {
   const userId = req.userId;
   try {
     await Voting.openVoting(votingId, userId);
-    res.status(200).send('Voting opened successfully');
+    res.status(200).json({ message: 'Voting opened successfully' });
   } catch (error) {
     console.error(error);
-    res.status(500).send('Error opening voting');
+    res.status(500).json({ message: 'Error opening voting' });
   }
 };
 
 exports.getResult = async (req, res, next) => {
   const votingId = req.params.id;
-  const token = req.cookies.token ? req.cookies.token : null;
+  const tokenString = req.headers['authorization']
+    ? req.headers['authorization']
+    : null;
   try {
     const voting = await Voting.findByPk(votingId, {
       include: [{ model: User, as: 'creator' }],
     });
     if (!voting) {
-      return res.status(404).send('Voting not found');
+      return res.status(404).json({ message: 'Voting not found' });
     }
     const candidates = await Candidate.findAll({ where: { votingId } });
-    res.render('votingRes', {
+    const token = tokenString && tokenString.split(' ')[1];
+    res.status(200).json({
       voting,
       candidates,
       userId: token,
-      req,
     });
   } catch (err) {
     console.error(err);
-    res.status(500).send('An error occurred while fetching the data');
+    res
+      .status(500)
+      .json({ message: 'An error occurred while fetching the data' });
   }
 };
 
@@ -125,10 +135,12 @@ exports.retractVote = async (req, res, next) => {
   const userId = req.userId;
   try {
     await Vote.retractVote(votingId, userId);
-    res.status(200).send('Vote retracted successfully');
+    res.status(200).json({ message: 'Vote retracted successfully' });
   } catch (error) {
     console.error(error);
-    res.status(500).send('An error occurred while retracting the vote');
+    res
+      .status(500)
+      .json({ message: 'An error occurred while retracting the vote' });
   }
 };
 
@@ -137,9 +149,11 @@ exports.deleteVoting = async (req, res, next) => {
   const userId = req.userId;
   try {
     await Voting.deleteVoting(votingId, userId);
-    res.redirect(`/`);
+    res.status(200).json({ redirect: `/` });
   } catch (error) {
     console.error(error);
-    res.status(500).send('An error occurred while deleting the voting');
+    res
+      .status(500)
+      .json({ message: 'An error occurred while deleting the voting' });
   }
 };
