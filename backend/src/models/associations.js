@@ -1,10 +1,10 @@
-const Sequelize = require('sequelize');
-const sequelize = require('../util/database');
+import Sequelize from 'sequelize';
+import sequelize from '../util/database.js';
 
-const { Voting, Candidate } = require('../models/voting');
-const User = require('../models/user');
-const Vote = require('../models/vote');
-const Session = require('../models/session');
+import { Voting, Candidate } from '../models/voting.js';
+import { User } from '../models/user.js';
+import { Vote } from '../models/vote.js';
+import { Session } from '../models/session.js';
 
 User.hasMany(Vote, { foreignKey: 'userId' });
 User.hasMany(Voting, { foreignKey: 'userId' });

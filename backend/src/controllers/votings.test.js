@@ -1,8 +1,17 @@
-const { Voting, Candidate } = require('../models/voting');
-const Vote = require('../models/vote');
-const User = require('../models/user');
-const Session = require('../models/session');
-const votingsController = require('./votings');
+import { Voting, Candidate } from '../models/voting.js';
+import { Vote } from '../models/vote.js';
+import { User } from '../models/user.js';
+import { Session } from '../models/session.js';
+import {
+  retractVote,
+  deleteVoting,
+  getVoting,
+  castVote,
+  closeVoting,
+  openVoting,
+  getResult,
+  addVoting
+} from './votings.js';
 
 jest.mock('../models/voting');
 jest.mock('../models/vote');
@@ -30,7 +39,7 @@ describe('Votings Controller', () => {
     it('should retract a vote successfully', async () => {
       Vote.retractVote.mockResolvedValue();
 
-      await votingsController.retractVote(req, res, next);
+      await retractVote(req, res, next);
 
       expect(Vote.retractVote).toHaveBeenCalledWith(1, 1);
       expect(res.status).toHaveBeenCalledWith(200);
@@ -43,7 +52,7 @@ describe('Votings Controller', () => {
       const error = new Error('Test error');
       Vote.retractVote.mockRejectedValue(error);
 
-      await votingsController.retractVote(req, res, next);
+      await retractVote(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({
@@ -56,7 +65,7 @@ describe('Votings Controller', () => {
     it('should delete a voting successfully', async () => {
       Voting.deleteVoting.mockResolvedValue();
 
-      await votingsController.deleteVoting(req, res, next);
+      await deleteVoting(req, res, next);
 
       expect(Voting.deleteVoting).toHaveBeenCalledWith(1, 1);
       expect(res.status).toHaveBeenCalledWith(200);
@@ -67,7 +76,7 @@ describe('Votings Controller', () => {
       const error = new Error('Test error');
       Voting.deleteVoting.mockRejectedValue(error);
 
-      await votingsController.deleteVoting(req, res, next);
+      await deleteVoting(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({
@@ -86,7 +95,7 @@ describe('Votings Controller', () => {
         options: ['Option 1', 'Option 2'],
       };
 
-      await votingsController.addVoting(req, res, next);
+      await addVoting(req, res, next);
 
       expect(Voting.createWithCandidates).toHaveBeenCalledWith(
         'Test Title',
@@ -102,7 +111,7 @@ describe('Votings Controller', () => {
       const error = new Error('Test error');
       Voting.createWithCandidates.mockRejectedValue(error);
 
-      await votingsController.addVoting(req, res, next);
+      await addVoting(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({ message: 'Error saving voting' });
@@ -115,7 +124,7 @@ describe('Votings Controller', () => {
 
       req.body = { candidateId: 1 };
 
-      await votingsController.castVote(req, res, next);
+      await castVote(req, res, next);
 
       expect(Voting.incrementVotes).toHaveBeenCalledWith(1, 1, 1);
       expect(res.status).toHaveBeenCalledWith(200);
@@ -128,7 +137,7 @@ describe('Votings Controller', () => {
       const error = new Error('Test error');
       Voting.incrementVotes.mockRejectedValue(error);
 
-      await votingsController.castVote(req, res, next);
+      await castVote(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({ message: error.message });
@@ -139,7 +148,7 @@ describe('Votings Controller', () => {
     it('should close a voting successfully', async () => {
       Voting.closeVoting.mockResolvedValue();
 
-      await votingsController.closeVoting(req, res, next);
+      await closeVoting(req, res, next);
 
       expect(Voting.closeVoting).toHaveBeenCalledWith(1, 1);
       expect(res.status).toHaveBeenCalledWith(200);
@@ -152,7 +161,7 @@ describe('Votings Controller', () => {
       const error = new Error('Test error');
       Voting.closeVoting.mockRejectedValue(error);
 
-      await votingsController.closeVoting(req, res, next);
+      await closeVoting(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({
@@ -165,7 +174,7 @@ describe('Votings Controller', () => {
     it('should open a voting successfully', async () => {
       Voting.openVoting.mockResolvedValue();
 
-      await votingsController.openVoting(req, res, next);
+      await openVoting(req, res, next);
 
       expect(Voting.openVoting).toHaveBeenCalledWith(1, 1);
       expect(res.status).toHaveBeenCalledWith(200);
@@ -178,7 +187,7 @@ describe('Votings Controller', () => {
       const error = new Error('Test error');
       Voting.openVoting.mockRejectedValue(error);
 
-      await votingsController.openVoting(req, res, next);
+      await openVoting(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({
@@ -192,7 +201,7 @@ describe('Votings Controller', () => {
       Voting.findByPk.mockResolvedValue({ id: 1, title: 'Test Voting' });
       Candidate.findAll.mockResolvedValue([{ id: 1, name: 'Candidate 1' }]);
 
-      await votingsController.getResult(req, res, next);
+      await getResult(req, res, next);
 
       expect(Voting.findByPk).toHaveBeenCalledWith(1, {
         include: [{ model: User, as: 'creator' }],
@@ -212,7 +221,7 @@ describe('Votings Controller', () => {
       const error = new Error('Test error');
       Voting.findByPk.mockRejectedValue(error);
 
-      await votingsController.getResult(req, res, next);
+      await getResult(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({
@@ -228,7 +237,7 @@ describe('Votings Controller', () => {
       Candidate.findAll.mockResolvedValue([{ id: 1, name: 'Candidate 1' }]);
       Vote.findOne.mockResolvedValue({ dataValues: { candidateId: 1 } });
 
-      await votingsController.getVoting(req, res, next);
+      await getVoting(req, res, next);
 
       expect(Session.fetchByToken).toHaveBeenCalledWith('token');
       expect(Voting.findByPk).toHaveBeenCalledWith(1, {
@@ -253,7 +262,7 @@ describe('Votings Controller', () => {
       const error = new Error('Test error');
       Voting.findByPk.mockRejectedValue(error);
 
-      await votingsController.getVoting(req, res, next);
+      await getVoting(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({
@@ -264,7 +273,7 @@ describe('Votings Controller', () => {
     it('should return 404 if voting not found', async () => {
       Voting.findByPk.mockResolvedValue(null);
 
-      await votingsController.getVoting(req, res, next);
+      await getVoting(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(404);
       expect(res.json).toHaveBeenCalledWith({ message: 'Voting not found' });
@@ -275,7 +284,7 @@ describe('Votings Controller', () => {
       Voting.findByPk.mockResolvedValue({ id: 1, title: 'Test Voting' });
       Candidate.findAll.mockResolvedValue([{ id: 1, name: 'Candidate 1' }]);
 
-      await votingsController.getVoting(req, res, next);
+      await getVoting(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({

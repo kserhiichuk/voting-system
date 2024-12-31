@@ -1,7 +1,7 @@
 describe('Sample Test', () => {
   it('should load the home page', () => {
     cy.visit('/');
-    cy.contains('Your opinion matters, Democracy is everything!'); // Adjust this to match your home page content
+    cy.contains('Your opinion matters, Democracy is everything!');
   });
 
   it('should register a new user', () => {
@@ -50,7 +50,7 @@ describe('Sample Test', () => {
     cy.url().should('include', '/voting/');
     cy.contains('Test Poll');
 
-    cy.get('input[type="radio"]').eq(0).check(); // Select the first option
+    cy.get('input[type="radio"]').eq(0).check();
     cy.get('form').eq(0).submit();
 
     cy.contains('1 votes');

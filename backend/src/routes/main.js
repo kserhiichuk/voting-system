@@ -1,8 +1,8 @@
-const express = require('express');
-const router = express.Router();
+import { Router } from 'express';
+const router = Router();
 
-const mainController = require('../controllers/main');
+import { getVotings } from '../controllers/main.js';
 
-router.get('/', mainController.getVotings);
+router.get('/', getVotings);
 
-module.exports = router;
+export default router;

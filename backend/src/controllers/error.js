@@ -1,4 +1,4 @@
-const ErrorController = {
+export const ErrorController = {
   notFound: (req, res) => {
     const tokenString = req.headers['authorization']
       ? req.headers['authorization']
@@ -7,5 +7,3 @@ const ErrorController = {
     res.status(404).json({ userId });
   },
 };
-
-module.exports = ErrorController;

@@ -1,5 +1,24 @@
-const request = require('supertest');
-const app = require('./setupTests');
+import request from 'supertest';
+import sequelize from './util/database.js';
+import app from './index.js';
+import { createServer } from 'http';
+
+let server;
+
+beforeAll(async () => {
+  jest.setTimeout(30000);
+
+  await sequelize.sync();
+
+  server = createServer(app);
+  await new Promise((resolve) => server.listen({ port: 3002 }, resolve));
+});
+
+afterAll(async () => {
+  await new Promise((resolve) => server.close(resolve));
+
+  await sequelize.close();
+});
 
 describe('Integration Tests', () => {
   it('should connect to the database and start the server', async () => {
@@ -21,18 +40,16 @@ describe('Integration Tests', () => {
         password: 'testpassword',
       });
     expect(res.statusCode).toEqual(200);
-    expect(res.body).toHaveProperty('redirect', '/auth/login'); // Adjust to match the actual response
+    expect(res.body).toHaveProperty('redirect', '/auth/login');
   });
 
   it('should not register a user with an existing login', async () => {
-    // First, register a user
     await request(app).post('/auth/register').send({
       name: 'testuser',
       login: 'testuser',
       password: 'testpassword',
     });
 
-    // Try to register the same user again
     const res = await request(app).post('/auth/register').send({
       name: 'testuser',
       login: 'testuser',
@@ -46,14 +63,12 @@ describe('Integration Tests', () => {
   });
 
   it('should create a new poll', async () => {
-    // First, login a user to get a token
     const loginRes = await request(app).post('/auth/login').send({
       login: 'testuser',
       password: 'testpassword',
     });
     const token = loginRes.body.token;
 
-    // Then, create a new poll
     const pollRes = await request(app)
       .post('/newpoll/add-voting')
       .set('Authorization', `Bearer ${token}`)

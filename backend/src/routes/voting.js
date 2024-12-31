@@ -1,21 +1,29 @@
-const express = require('express');
-const router = express.Router();
+import { Router } from 'express';
+const router = Router();
 
-const auth = require('../middleware/auth');
-const votingsController = require('../controllers/votings');
+import auth from '../middleware/auth.js';
+import {
+  getVoting,
+  castVote,
+  closeVoting,
+  openVoting,
+  retractVote,
+  deleteVoting,
+  getResult,
+} from '../controllers/votings.js';
 
-router.get('/:id', votingsController.getVoting);
+router.get('/:id', getVoting);
 
-router.post('/:id/vote', auth, votingsController.castVote);
+router.post('/:id/vote', auth, castVote);
 
-router.put('/:id/close', auth, votingsController.closeVoting);
+router.put('/:id/close', auth, closeVoting);
 
-router.put('/:id/open', auth, votingsController.openVoting);
+router.put('/:id/open', auth, openVoting);
 
-router.post('/:id/retract', auth, votingsController.retractVote);
+router.post('/:id/retract', auth, retractVote);
 
-router.delete('/:id', auth, votingsController.deleteVoting);
+router.delete('/:id', auth, deleteVoting);
 
-router.get('/:id/res', votingsController.getResult);
+router.get('/:id/res', getResult);
 
-module.exports = router;
+export default router;

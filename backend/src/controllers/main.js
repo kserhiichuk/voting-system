@@ -1,8 +1,8 @@
-const { Voting } = require('../models/voting');
-const User = require('../models/user');
-const { Op } = require('sequelize');
+import { Voting } from '../models/voting.js';
+import { User } from '../models/user.js';
+import { Op } from 'sequelize';
 
-exports.getVotings = async (req, res, next) => {
+export const getVotings = async (req, res, next) => {
   const page = parseInt(req.query.page) || 1;
   const status = req.query.status || ['active', 'closed'];
   const votingLength = await Voting.count({

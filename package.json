@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "description": "A **Node.js Express** application for managing and participating in votings. This platform simplifies the process of creating, conducting, and analyzing voting sessions, providing a user-friendly and secure experience for administrators and participants alike.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "prepare": "npx simple-git-hooks",
     "format": "prettier --write .",
-    "lint": "eslint .",
+    "lint": "eslint ./backend --no-cache --fix",
     "test:backend": "npm run test --workspace backend",
     "start:backend": "npm start --workspace backend",
     "start:frontend": "npm start --workspace frontend",

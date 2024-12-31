@@ -1,8 +1,8 @@
-const express = require('express');
-const router = express.Router();
+import { Router } from 'express';
+const router = Router();
 
-const auth = require('../middleware/auth');
-const votingsController = require('../controllers/votings');
+import auth from '../middleware/auth.js';
+import { addVoting } from '../controllers/votings.js';
 
 router.get('/', (req, res) => {
   const tokenString = req.headers['authorization']
@@ -12,6 +12,6 @@ router.get('/', (req, res) => {
   res.status(200).json({ userId: token });
 });
 
-router.post('/add-voting', auth, votingsController.addVoting);
+router.post('/add-voting', auth, addVoting);
 
-module.exports = router;
+export default router;

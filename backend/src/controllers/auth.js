@@ -1,8 +1,8 @@
-const User = require('../models/user');
-const Session = require('../models/session');
-const { v4: uuidv4 } = require('uuid');
+import { User } from '../models/user.js';
+import { Session } from '../models/session.js';
+import { v4 } from 'uuid';
 
-exports.register = async (req, res, next) => {
+export const register = async (req, res, next) => {
   const name = req.body.name;
   const login = req.body.login;
   const password = req.body.password;
@@ -21,7 +21,7 @@ exports.register = async (req, res, next) => {
   }
 };
 
-exports.login = async (req, res, next) => {
+export const login = async (req, res, next) => {
   const login = req.body.login;
   const password = req.body.password;
   try {
@@ -31,7 +31,7 @@ exports.login = async (req, res, next) => {
       return res.status(401).json({ message: 'Invalid login or password' });
     }
 
-    const token = uuidv4();
+    const token = v4();
     const expiresAt = new Date(Date.now() + 24 * 3600 * 1000)
       .toISOString()
       .slice(0, 19)
@@ -47,7 +47,7 @@ exports.login = async (req, res, next) => {
   }
 };
 
-exports.logout = async (req, res, next) => {
+export const logout = async (req, res, next) => {
   const tokenString = req.headers['authorization'];
   if (!token) {
     res.status(500).json({ message: 'Log out failed' });
@@ -70,7 +70,7 @@ exports.logout = async (req, res, next) => {
   }
 };
 
-exports.getLogin = async (req, res, next) => {
+export const getLogin = async (req, res, next) => {
   const tokenString = req.headers['authorization']
     ? req.headers['authorization']
     : null;
@@ -78,7 +78,7 @@ exports.getLogin = async (req, res, next) => {
   res.status(200).json({ token });
 };
 
-exports.getRegister = async (req, res, next) => {
+export const getRegister = async (req, res, next) => {
   const tokenString = req.headers['authorization']
     ? req.headers['authorization']
     : null;

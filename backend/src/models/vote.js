@@ -1,5 +1,6 @@
-const Sequelize = require('sequelize');
-const sequelize = require('../util/database');
+import Sequelize from 'sequelize';
+import sequelize from '../util/database.js';
+import { Voting, Candidate } from '../models/voting.js';
 
 const Vote = sequelize.define('Vote', {
   votingId: {
@@ -30,7 +31,6 @@ Vote.destroyVotes = async (votingId, transaction) => {
 };
 
 Vote.retractVote = async (votingId, userId) => {
-  const { Voting, Candidate } = require('../models/voting');
   const transaction = await sequelize.transaction();
 
   try {
@@ -61,4 +61,4 @@ Vote.retractVote = async (votingId, userId) => {
   }
 };
 
-module.exports = Vote;
+export { Vote };

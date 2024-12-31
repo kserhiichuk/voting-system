@@ -1,7 +1,7 @@
-const Sequelize = require('sequelize');
-const sequelize = require('../util/database');
+import Sequelize from 'sequelize';
+import sequelize from '../util/database.js';
 
-const Vote = require('../models/vote');
+import { Vote } from '../models/vote.js';
 
 const Voting = sequelize.define('Voting', {
   id: {
@@ -239,4 +239,4 @@ Voting.openVoting = async (votingId, userId) => {
   }
 };
 
-module.exports = { Voting, Candidate };
+export { Voting, Candidate };

@@ -1,9 +1,9 @@
-const { Voting, Candidate } = require('../models/voting');
-const Vote = require('../models/vote');
-const User = require('../models/user');
-const Session = require('../models/session');
+import { Voting, Candidate } from '../models/voting.js';
+import { Vote } from '../models/vote.js';
+import { User } from '../models/user.js';
+import { Session } from '../models/session.js';
 
-exports.getVoting = async (req, res, next) => {
+export const getVoting = async (req, res, next) => {
   const votingId = req.params.id;
   const tokenString = req.headers['authorization']
     ? req.headers['authorization']
@@ -45,13 +45,13 @@ exports.getVoting = async (req, res, next) => {
   }
 };
 
-exports.addVoting = async (req, res, next) => {
+export const addVoting = async (req, res, next) => {
   const title = req.body.surveyTitle;
   const description = req.body.surveyDescription;
   const options = req.body.options;
   const userId = req.userId;
   try {
-    result = await Voting.createWithCandidates(
+    const result = await Voting.createWithCandidates(
       title,
       description,
       userId,
@@ -64,7 +64,7 @@ exports.addVoting = async (req, res, next) => {
   }
 };
 
-exports.castVote = async (req, res, next) => {
+export const castVote = async (req, res, next) => {
   const votingId = req.params.id;
   const candidateId = req.body.candidateId;
   const userId = req.userId;
@@ -77,7 +77,7 @@ exports.castVote = async (req, res, next) => {
   }
 };
 
-exports.closeVoting = async (req, res, next) => {
+export const closeVoting = async (req, res, next) => {
   const votingId = req.params.id;
   const userId = req.userId;
   try {
@@ -91,7 +91,7 @@ exports.closeVoting = async (req, res, next) => {
   }
 };
 
-exports.openVoting = async (req, res, next) => {
+export const openVoting = async (req, res, next) => {
   const votingId = req.params.id;
   const userId = req.userId;
   try {
@@ -103,7 +103,7 @@ exports.openVoting = async (req, res, next) => {
   }
 };
 
-exports.getResult = async (req, res, next) => {
+export const getResult = async (req, res, next) => {
   const votingId = req.params.id;
   const tokenString = req.headers['authorization']
     ? req.headers['authorization']
@@ -130,7 +130,7 @@ exports.getResult = async (req, res, next) => {
   }
 };
 
-exports.retractVote = async (req, res, next) => {
+export const retractVote = async (req, res, next) => {
   const votingId = req.params.id;
   const userId = req.userId;
   try {
@@ -144,7 +144,7 @@ exports.retractVote = async (req, res, next) => {
   }
 };
 
-exports.deleteVoting = async (req, res, next) => {
+export const deleteVoting = async (req, res, next) => {
   const votingId = req.params.id;
   const userId = req.userId;
   try {

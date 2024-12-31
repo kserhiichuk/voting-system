@@ -1,6 +1,4 @@
-const express = require('express');
-const router = express.Router();
-const Session = require('../models/session');
+import { Session } from '../models/session.js';
 
 const verifySession = async (req, res, next) => {
   const tokenString = req.headers['authorization'];
@@ -16,4 +14,4 @@ const verifySession = async (req, res, next) => {
   next();
 };
 
-module.exports = verifySession;
+export default verifySession;

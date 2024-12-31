@@ -1,6 +1,6 @@
-const bcrypt = require('bcrypt');
-const Sequelize = require('sequelize');
-const sequelize = require('../util/database');
+import bcrypt from 'bcrypt';
+import Sequelize from 'sequelize';
+import sequelize from '../util/database.js';
 
 const User = sequelize.define('User', {
   id: {
@@ -42,4 +42,4 @@ User.comparePassword = (password, storedPassword) => {
   return bcrypt.compare(password, storedPassword);
 };
 
-module.exports = User;
+export { User };

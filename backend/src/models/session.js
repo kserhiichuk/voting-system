@@ -1,5 +1,5 @@
-const Sequelize = require('sequelize');
-const sequelize = require('../util/database');
+import Sequelize from 'sequelize';
+import sequelize from '../util/database.js';
 
 const Session = sequelize.define('Session', {
   id: {
@@ -46,4 +46,4 @@ Session.fetchByToken = async (token) => {
   return session;
 };
 
-module.exports = Session;
+export { Session };

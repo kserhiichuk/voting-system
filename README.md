@@ -86,6 +86,14 @@ A **Node.js Express** application for managing and participating in votings. Thi
 
 ---
 
+## 🏃 How to run tests
+
+- **Unit and Integration**: `npm run test:backend`.
+- **E2E**: Run `npm run cypress:open`.
+- **Mutation**: Run `npx stryker run`.
+
+---
+
 ## 😍 Lab 1
 
 - **Solo project**
