@@ -13,9 +13,10 @@ const authRoutes = require('./routes/auth');
 const errorController = require('./controllers/error');
 require('./models/associations');
 
+const cors = require('cors');
 sequelize
   .sync()
-  .then(() => {
+  .then((result) => {
     app.listen(port, () => {
       console.log(`Server is running at http://localhost:${port}`);
     });
@@ -25,6 +26,15 @@ sequelize
   });
 
 app.use(cookieParser());
+const corsOptions = {
+  origin: process.env.CORS_ALLOW_ORIGIN || '*',
+  credentials: true,
+  methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
