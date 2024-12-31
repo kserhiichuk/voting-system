@@ -34,7 +34,8 @@ export class MainComponent implements OnInit {
     try {
       this.http
         .get(
-          environment.apiUrl + '?page=' +
+          environment.apiUrl +
+            '?page=' +
             this.currentPage +
             '&limit=' +
             this.limit +

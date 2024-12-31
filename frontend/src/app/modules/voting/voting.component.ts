@@ -31,19 +31,17 @@ export class VotingComponent implements OnInit {
   ngOnInit(): void {
     this.id = this.route.snapshot.paramMap.get('id');
     try {
-      this.http
-        .get(environment.apiUrl + '/voting/' + this.id)
-        .subscribe(
-          (response: any) => {
-            this.candidates = response.candidates;
-            this.vote = response.vote;
-            this.voting = response.voting;
-            this.userId = response.userId;
-          },
-          (error) => {
-            this.service.triggerShowAlert('Error fetching data');
-          },
-        );
+      this.http.get(environment.apiUrl + '/voting/' + this.id).subscribe(
+        (response: any) => {
+          this.candidates = response.candidates;
+          this.vote = response.vote;
+          this.voting = response.voting;
+          this.userId = response.userId;
+        },
+        (error) => {
+          this.service.triggerShowAlert('Error fetching data');
+        },
+      );
     } catch (error: any) {
       this.service.triggerShowAlert(error.message);
     }
@@ -78,10 +76,7 @@ export class VotingComponent implements OnInit {
   retractVote(): void {
     try {
       this.http
-        .post(
-          environment.apiUrl + '/voting/' + this.id + '/retract',
-          {},
-        )
+        .post(environment.apiUrl + '/voting/' + this.id + '/retract', {})
         .subscribe(
           (response: any) => {
             this.service.triggerShowAlert('Vote has been retracted');
@@ -100,19 +95,17 @@ export class VotingComponent implements OnInit {
 
   deleteVoting(): void {
     try {
-      this.http
-        .delete(environment.apiUrl + '/voting/' + this.id)
-        .subscribe(
-          (response: any) => {
-            this.service.triggerShowAlert('This vote is deleted');
-            setTimeout(() => {
-              this.router.navigate(['/']);
-            }, 1000);
-          },
-          (error) => {
-            this.service.triggerShowAlert('Something went wrong');
-          },
-        );
+      this.http.delete(environment.apiUrl + '/voting/' + this.id).subscribe(
+        (response: any) => {
+          this.service.triggerShowAlert('This vote is deleted');
+          setTimeout(() => {
+            this.router.navigate(['/']);
+          }, 1000);
+        },
+        (error) => {
+          this.service.triggerShowAlert('Something went wrong');
+        },
+      );
     } catch (error: any) {
       this.service.triggerShowAlert(error.message);
     }
@@ -121,10 +114,7 @@ export class VotingComponent implements OnInit {
   closeVoting(): void {
     try {
       this.http
-        .put(
-          environment.apiUrl + '/voting/' + this.id + '/close',
-          {},
-        )
+        .put(environment.apiUrl + '/voting/' + this.id + '/close', {})
         .subscribe(
           (response: any) => {
             this.service.triggerShowAlert('This voting is now closed');
