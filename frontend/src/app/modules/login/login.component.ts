@@ -24,7 +24,7 @@ export class LoginComponent {
   onSubmit(): void {
     try {
       this.http
-        .post('https://my-vote-6-5.onrender.com/auth/login', {
+        .post('https://my-vote-6-6.onrender.com/auth/login', {
           login: this.formLogin,
           password: this.formPassword,
         })

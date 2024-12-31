@@ -31,7 +31,7 @@ export class VotingComponent implements OnInit {
     this.id = this.route.snapshot.paramMap.get('id');
     try {
       this.http
-        .get('https://my-vote-6-5.onrender.com/voting/' + this.id)
+        .get('https://my-vote-6-6.onrender.com/voting/' + this.id)
         .subscribe(
           (response: any) => {
             this.candidates = response.candidates;
@@ -55,7 +55,7 @@ export class VotingComponent implements OnInit {
     }
     try {
       this.http
-        .post('https://my-vote-6-5.onrender.com/voting/' + this.id + '/vote', {
+        .post('https://my-vote-6-6.onrender.com/voting/' + this.id + '/vote', {
           candidateId: this.voteAnswer,
         })
         .subscribe(
@@ -78,7 +78,7 @@ export class VotingComponent implements OnInit {
     try {
       this.http
         .post(
-          'https://my-vote-6-5.onrender.com/voting/' + this.id + '/retract',
+          'https://my-vote-6-6.onrender.com/voting/' + this.id + '/retract',
           {},
         )
         .subscribe(
@@ -100,10 +100,7 @@ export class VotingComponent implements OnInit {
   deleteVoting(): void {
     try {
       this.http
-        .post(
-          'https://my-vote-6-5.onrender.com/voting/' + this.id + '/delete',
-          {},
-        )
+        .delete('https://my-vote-6-6.onrender.com/voting/' + this.id)
         .subscribe(
           (response: any) => {
             this.service.triggerShowAlert('This vote is deleted');
@@ -123,8 +120,8 @@ export class VotingComponent implements OnInit {
   closeVoting(): void {
     try {
       this.http
-        .post(
-          'https://my-vote-6-5.onrender.com/voting/' + this.id + '/close',
+        .put(
+          'https://my-vote-6-6.onrender.com/voting/' + this.id + '/close',
           {},
         )
         .subscribe(
@@ -146,10 +143,7 @@ export class VotingComponent implements OnInit {
   openVoting(): void {
     try {
       this.http
-        .post(
-          'https://my-vote-6-5.onrender.com/voting/' + this.id + '/open',
-          {},
-        )
+        .put('https://my-vote-6-6.onrender.com/voting/' + this.id + '/open', {})
         .subscribe(
           (response: any) => {
             this.service.triggerShowAlert('This voting is now opened');

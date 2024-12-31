@@ -25,7 +25,7 @@ export class VotingResComponent implements OnInit {
     this.id = this.route.snapshot.paramMap.get('id');
     try {
       this.http
-        .get('https://my-vote-6-5.onrender.com/voting/' + this.id + '/res')
+        .get('https://my-vote-6-6.onrender.com/voting/' + this.id + '/res')
         .subscribe(
           (response: any) => {
             this.candidates = response.candidates;

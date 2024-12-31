@@ -25,7 +25,7 @@ export class RegisterComponent {
   onSubmit(): void {
     try {
       this.http
-        .post<any>('https://my-vote-6-5.onrender.com/auth/register', {
+        .post<any>('https://my-vote-6-6.onrender.com/auth/register', {
           name: this.formName,
           login: this.formLogin,
           password: this.formPassword,

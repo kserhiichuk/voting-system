@@ -41,7 +41,7 @@ export class NewpollComponent {
 
     try {
       this.http
-        .post('https://my-vote-6-3.onrender.com/newpoll/add-voting', {
+        .post('https://my-vote-6-6.onrender.com/newpoll/add-voting', {
           surveyTitle,
           surveyDescription,
           options,
