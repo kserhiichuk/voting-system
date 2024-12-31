@@ -13,7 +13,7 @@
             <p class="voting_number">No. <%= voting.id %> Results</p>
             <h2 class="voting_title"><%= voting.title %></h2>
             <div class="voting_info_container">
-              <p class="voting_creator">Author: <%= creatorName %>
+              <p class="voting_creator">Author: <%= voting.creator.name %>
               </p>
               <p class="voting_creator">Total votes: <%= voting.votesNum %>
               </p>
@@ -36,7 +36,11 @@
         </div>
       </section>
     </div>
+    <%- include('./includes/custom_alert.ejs') %>
   </body>
+
+  <script src="/scripts/main.js"></script>
+  <script src="/scripts/logout.js"></script>
 
   <script>
     const copyLinkButton = document.getElementById("copyLinkButton");
@@ -45,7 +49,7 @@
     copyLinkButton.addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(myLink.href);
-        alert("Link copied to clipboard!");
+        showMessage("Link copied to clipboard!");
       } catch (err) {
         console.error("Failed to copy link: ", err);
       }
