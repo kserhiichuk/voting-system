@@ -7,9 +7,15 @@
     "prepare": "npx simple-git-hooks",
     "format": "prettier --write .",
     "lint": "eslint .",
-    "test": "jest",
+    "test:backend": "npm run test --workspace backend",
+    "start:backend": "npm start --workspace backend",
+    "start:frontend": "npm start --workspace frontend",
     "build": "tsc"
   },
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
@@ -21,6 +27,6 @@
   },
   "simple-git-hooks": {
     "pre-commit": "npm run format && npm run lint",
-    "pre-push": "npm run test"
+    "pre-push": "npm run test:backend"
   }
 }

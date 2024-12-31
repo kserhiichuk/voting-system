@@ -49,3 +49,5 @@ app.use(express.static('public'));
 app.use((req, res) => {
   errorController.notFound(req, res);
 });
+
+module.exports = app;
