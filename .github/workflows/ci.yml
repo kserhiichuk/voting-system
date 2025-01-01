@@ -1,12 +1,9 @@
-name: CI/CD Pipeline
+name: CI
 
 on:
   pull_request:
     branches:
       - "*"
-  push:
-    branches:
-      - main
 
 jobs:
   ci:
@@ -55,33 +52,3 @@ jobs:
       run: |
         echo "Tests failed. Blocking merge."
         exit 1
-
-  cd:
-    name: CD Workflow
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-
-    container:
-      image: ghcr.io/railwayapp/cli:latest
-      env:
-        SVC_ID: my-service-id
-        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        cache: 'npm'
-
-    - name: Install dependencies
-      run: npm install
-
-    - name: Build frontend
-      run: npm run build --workspace frontend
-
-    - name: Deploy to Railway
-      run: railway up --service=${{ env.SVC_ID }}
