@@ -27,8 +27,7 @@ jobs:
       run: npm install
 
     - name: Create backend .env file
-    run: |
-      echo "${{ secrets.BACKEND_ENV_FILE }}" > backend/.env
+      run: echo "${{ secrets.BACKEND_ENV_FILE }}" > backend/.env
 
     - name: Check code format
       run: npm run format
@@ -56,6 +55,12 @@ jobs:
     - name: Check PR for passing CI
       if: github.event_name == 'pull_request'
       run: echo "All CI checks passed."
+
+    - name: Fail CI if tests not ok
+      if: failure()
+      run: |
+        echo "Tests failed. Blocking merge."
+        exit 1
 
   cd:
     name: CD Workflow
