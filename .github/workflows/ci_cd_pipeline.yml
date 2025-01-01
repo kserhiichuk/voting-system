@@ -1,0 +1,92 @@
+name: CI/CD Pipeline
+
+on:
+  pull_request:
+    branches:
+      - "*"
+  push:
+    branches:
+      - master
+
+jobs:
+  ci:
+    name: CI Workflow
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Check code format
+      run: npm run format
+
+    - name: Lint code
+      run: npm run lint
+
+    - name: Run backend tests
+      run: npm run test:backend
+
+    - name: Run frontend tests
+      run: npm test --workspace frontend
+
+    - name: Build frontend
+      run: npm run build --workspace frontend
+
+    - name: Build backend
+      run: npm run build
+
+    - name: Validate commit messages
+      uses: wagoid/commitlint-github-action@v5
+      with:
+        configFile: commitlint.config.js
+
+    - name: Check PR for passing CI
+      if: github.event_name == 'pull_request'
+      run: echo "All CI checks passed."
+
+  cd:
+    name: CD Workflow
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build frontend
+      run: npm run build --workspace frontend
+
+    - name: Build backend
+      run: npm run build
+
+    - name: Deploy to stage server
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        STAGE_SERVER: ${{ secrets.STAGE_SERVER }}
+        DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+      run: |
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh -o StrictHostKeyChecking=no $STAGE_SERVER "mkdir -p $DEPLOY_PATH"
+        scp -r ./backend $STAGE_SERVER:$DEPLOY_PATH/backend
+        scp -r ./frontend $STAGE_SERVER:$DEPLOY_PATH/frontend
+        ssh $STAGE_SERVER "cd $DEPLOY_PATH && docker-compose down && docker-compose up -d"
