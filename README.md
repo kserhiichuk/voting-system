@@ -138,7 +138,9 @@ A **Node.js Express** application for managing and participating in votings. Thi
 
 ## 💀 Lab 6
 
-- **Link: [commit](https://github.com/kserhiichuk/voting-system/tree/1e03b14c610c61b9e24c64fd840d27b148e646a3)**
-- **Rewrote business logic using Sequelize ORM and MySQL database**
+- **Jest: Created unit tests to fully cover votings controller [file](backend/src/controllers/votings.test.js)**
+- **Jest: Created integration tests with database and server setup [file](backend\src\integration.test.js)**
+- **Cypress: Created E2E tests that cover all elements of the system [file](cypress\e2e\test.cy.js)**
+- **Stryker: Conducted mutation testing of unit and integration tests [config](backend\stryker.config.json)**
 
 ---
