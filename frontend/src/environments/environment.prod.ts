@@ -1,6 +1,6 @@
 export const environment = {
     production: true,
-    apiUrl: 'voting-system-production-a54f.up.railway.app',
+    apiUrl: 'https://voting-system-lwnm.onrender.com',
     appName: 'My Angular App (Production)',
   };
   

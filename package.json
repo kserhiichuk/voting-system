@@ -5,7 +5,6 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "prepare": "npx simple-git-hooks",
     "format": "prettier --write .",
     "lint": "eslint ./backend --no-cache --fix",
     "test:backend": "npm run test --workspace backend",
