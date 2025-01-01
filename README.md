@@ -139,8 +139,13 @@ A **Node.js Express** application for managing and participating in votings. Thi
 ## 💀 Lab 6
 
 - **Jest: Created unit tests to fully cover votings controller [file](backend/src/controllers/votings.test.js)**
-- **Jest: Created integration tests with database and server setup [file](backend\src\integration.test.js)**
-- **Cypress: Created E2E tests that cover all elements of the system [file](cypress\e2e\test.cy.js)**
-- **Stryker: Conducted mutation testing of unit and integration tests [config](backend\stryker.config.json)**
+- **Jest: Created integration tests with database and server setup [file](backend/src/integration.test.js)**
+- **Cypress: Created E2E tests that cover all elements of the system [file](cypress/e2e/test.cy.js)**
+- **Stryker: Conducted mutation testing of unit and integration tests [config](backend/stryker.config.json)**
+- **Unit & Integration Tests Report**: ![image](https://github.com/user-attachments/assets/48c66eb4-93bd-4e74-86f5-f335053d7b23)
+- **Mutation Testing Report**: ![image](https://github.com/user-attachments/assets/422f1d64-f4b9-4b7c-b859-665e089fce37)
+- **General Testing Report**: Unit and integration tests (Jest) provide good coverage, especially considering that most of the application's logic resides in the controllers. With 62.82% overall statement coverage and 40.42% branch coverage, the numbers are solid. Controllers and middleware are well-tested, while models, which primarily handle data structures, understandably have low coverage and don't require much attention.
+Mutation testing (Stryker) shows a score of 32.68%, which highlights room for improvement in test effectiveness. Controllers have strong mutation coverage, reflecting decent logic validation, but there's still potential to cover more edge cases and decision paths. Models and routes, though less critical, could also benefit from slight improvements to ensure completeness. Regarding E2E testing, general scenarios are covered, but there's plenty more scenarios need to be tested before production.
+The test suite is effective given the concentration of logic in the controllers. While these are good results, there’s room to improve branch coverage and strengthen assertions to further validate core logic and enhance test robustness.
 
 ---
