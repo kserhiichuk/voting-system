@@ -61,6 +61,12 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
 
+    container:
+      image: ghcr.io/railwayapp/cli:latest
+      env:
+        SVC_ID: my-service-id
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -77,16 +83,5 @@ jobs:
     - name: Build frontend
       run: npm run build --workspace frontend
 
-    - name: Deploy to stage server
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        STAGE_SERVER: ${{ secrets.STAGE_SERVER }}
-        DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-      run: |
-        mkdir -p ~/.ssh
-        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh -o StrictHostKeyChecking=no $STAGE_SERVER "mkdir -p $DEPLOY_PATH"
-        scp -r ./backend $STAGE_SERVER:$DEPLOY_PATH/backend
-        scp -r ./frontend $STAGE_SERVER:$DEPLOY_PATH/frontend
-        ssh $STAGE_SERVER "cd $DEPLOY_PATH && docker-compose down && docker-compose up -d"
+    - name: Deploy to Railway
+      run: railway up --service=${{ env.SVC_ID }}
