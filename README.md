@@ -149,3 +149,11 @@ Mutation testing (Stryker) shows a score of 32.68%, which highlights room for im
 The test suite is effective given the concentration of logic in the controllers. While these are good results, there’s room to improve branch coverage and strengthen assertions to further validate core logic and enhance test robustness.
 
 ---
+
+## 😶‍🌫️ Lab 7
+
+- **Configured CI**: When creating a new PR or a commit in it, the code is cheked for compliance with the prettier, the absence of linter errors, the fact that it is “built”, tests pass, and commits correspond to the selected description style. Github is configured so that you can merge a PR only if it passes CI. [file](.github/workflows/ci.yml)
+- **Configured CD**: When adding new commits to main, there is automatically a new version of the software deployed on Render. Tried deploying frontend on gh pages but for some reason it only works with manual deploy.
+- **Deploy**: [https://voting-system-1-mz90.onrender.com/](https://voting-system-1-mz90.onrender.com/): Warning: backend takes up to a minute to properly load, so please wait a bit.
+
+---
