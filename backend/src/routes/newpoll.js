@@ -14,4 +14,5 @@ router.get('/', (req, res) => {
 
 router.post('/add-voting', auth, addVoting);
 
+
 export default router;
